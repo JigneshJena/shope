@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_owner"
+    app:startDestination="@id/navigation_home">
+
+    <fragment
+        android:id="@+id/navigation_home"
+        android:name="com.example.shope.ui.owner.OwnerHomeFragment"
+        android:label="@string/home"
+        tools:layout="@layout/fragment_owner_home" />
+
+    <fragment
+        android:id="@+id/navigation_employees"
+        android:name="com.example.shope.ui.owner.EmployeeManagementFragment"
+        android:label="@string/employees"
+        tools:layout="@layout/fragment_employee_management" />
+
+    <fragment
+        android:id="@+id/navigation_schools"
+        android:name="com.example.shope.ui.owner.SchoolManagementFragment"
+        android:label="@string/schools"
+        tools:layout="@layout/fragment_school_management" />
+
+    <fragment
+        android:id="@+id/navigation_reports"
+        android:name="com.example.shope.ui.owner.ReportsFragment"
+        android:label="@string/reports"
+        tools:layout="@layout/fragment_reports" />
+
+    <fragment
+        android:id="@+id/navigation_settings"
+        android:name="com.example.shope.ui.owner.OwnerSettingsFragment"
+        android:label="@string/settings"
+        tools:layout="@layout/fragment_owner_settings" />
+
+</navigation>

@@ -1,0 +1,69 @@
+{
+  "project_info": {
+    "project_number": "123613200782",
+    "firebase_url": "https://college-project-63425-default-rtdb.firebaseio.com",
+    "project_id": "college-project-63425",
+    "storage_bucket": "college-project-63425.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:123613200782:android:e3d6db9583bc99fd4c64df",
+        "android_client_info": {
+          "package_name": "com.example.shope"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "123613200782-j6eg6ot524m0ercpmgd19muvnsvgpvhg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA2m3iVKEe8Z8mur4kNYiyvaZ_KEpYWwm8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "123613200782-j6eg6ot524m0ercpmgd19muvnsvgpvhg.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:123613200782:android:f5eea389361e5ea54c64df",
+        "android_client_info": {
+          "package_name": "com.example.shopesmart"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "123613200782-j6eg6ot524m0ercpmgd19muvnsvgpvhg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA2m3iVKEe8Z8mur4kNYiyvaZ_KEpYWwm8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "123613200782-j6eg6ot524m0ercpmgd19muvnsvgpvhg.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_employee"
+    app:startDestination="@id/navigation_home">
+
+    <fragment
+        android:id="@+id/navigation_home"
+        android:name="com.example.shope.ui.employee.EmployeeHomeFragment"
+        android:label="@string/home"
+        tools:layout="@layout/fragment_employee_home" />
+
+    <fragment
+        android:id="@+id/navigation_customers"
+        android:name="com.example.shope.ui.employee.CustomerManagementFragment"
+        android:label="@string/customers"
+        tools:layout="@layout/fragment_customer_management" />
+
+    <fragment
+        android:id="@+id/navigation_orders"
+        android:name="com.example.shope.ui.employee.OrderManagementFragment"
+        android:label="@string/orders"
+        tools:layout="@layout/fragment_order_management" />
+
+    <fragment
+        android:id="@+id/navigation_inventory"
+        android:name="com.example.shope.ui.employee.InventoryManagementFragment"
+        android:label="@string/inventory"
+        tools:layout="@layout/fragment_inventory_management" />
+
+    <fragment
+        android:id="@+id/navigation_billing"
+        android:name="com.example.shope.ui.employee.BillingFragment"
+        android:label="@string/billing"
+        tools:layout="@layout/fragment_billing" />
+
+    <fragment
+        android:id="@+id/navigation_more"
+        android:name="com.example.shope.ui.employee.MoreFragment"
+        android:label="@string/more"
+        tools:layout="@layout/fragment_more" />
+
+</navigation>

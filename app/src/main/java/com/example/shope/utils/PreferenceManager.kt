@@ -1,0 +1,44 @@
+package com.example.shope.utils
+
+import android.content.Context
+import android.content.SharedPreferences
+import android.view.View
+import java.text.SimpleDateFormat
+import java.util.Date
+import com.example.shope.utils.Constants.PREF_IS_LOGGED_IN
+import com.example.shope.utils.Constants.PREF_NAME
+import com.example.shope.utils.Constants.PREF_USER_EMAIL
+import com.example.shope.utils.Constants.PREF_USER_ID
+import com.example.shope.utils.Constants.PREF_USER_NAME
+import com.example.shope.utils.Constants.PREF_USER_ROLE
+
+class PreferenceManager(context: Context) {
+    
+    private val sharedPreferences: SharedPreferences = 
+        context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+    
+    fun saveUserSession(userId: String, name: String, email: String, role: String) {
+        sharedPreferences.edit().apply {
+            putString(PREF_USER_ID, userId)
+            putString(PREF_USER_NAME, name)
+            putString(PREF_USER_EMAIL, email)
+            putString(PREF_USER_ROLE, role)
+            putBoolean(PREF_IS_LOGGED_IN, true)
+            apply()
+        }
+    }
+    
+    fun getUserId(): String? = sharedPreferences.getString(PREF_USER_ID, null)
+    
+    fun getUserName(): String? = sharedPreferences.getString(PREF_USER_NAME, null)
+    
+    fun getUserEmail(): String? = sharedPreferences.getString(PREF_USER_EMAIL, null)
+    
+    fun getUserRole(): String? = sharedPreferences.getString(PREF_USER_ROLE, null)
+    
+    fun isLoggedIn(): Boolean = sharedPreferences.getBoolean(PREF_IS_LOGGED_IN, false)
+    
+    fun clear() {
+        sharedPreferences.edit().clear().apply()
+    }
+}
