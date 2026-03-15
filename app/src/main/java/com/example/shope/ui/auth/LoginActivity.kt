@@ -8,6 +8,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.example.shope.R
 import com.example.shope.databinding.ActivityLoginBinding
+import com.example.shope.ui.admin.AdminDashboardActivity
 import com.example.shope.ui.customer.CustomerDashboardActivity
 import com.example.shope.ui.employee.EmployeeDashboardActivity
 import com.example.shope.ui.owner.OwnerDashboardActivity
@@ -51,6 +52,7 @@ class LoginActivity : AppCompatActivity() {
         if (prefManager.isLoggedIn()) {
             val email = prefManager.getUserEmail() ?: ""
             val role = when {
+                email.contains("admin@", ignoreCase = true) || prefManager.getUserRole() == Constants.ROLE_ADMIN -> Constants.ROLE_ADMIN
                 email.contains("@owner", ignoreCase = true) -> Constants.ROLE_OWNER
                 email.contains("@employee", ignoreCase = true) -> Constants.ROLE_EMPLOYEE
                 else -> prefManager.getUserRole() ?: Constants.ROLE_CUSTOMER
@@ -110,6 +112,7 @@ class LoginActivity : AppCompatActivity() {
                     
                     // Determine role using User model logic (handles @owner convention)
                     val effectiveRole = when {
+                        user.isAdmin() -> Constants.ROLE_ADMIN
                         user.isOwner() -> Constants.ROLE_OWNER
                         user.isEmployee() -> Constants.ROLE_EMPLOYEE
                         else -> user.role.ifEmpty { Constants.ROLE_CUSTOMER }
@@ -151,6 +154,7 @@ class LoginActivity : AppCompatActivity() {
     
     private fun navigateToDashboard(role: String) {
         val intent = when (role) {
+            Constants.ROLE_ADMIN -> Intent(this, AdminDashboardActivity::class.java)
             Constants.ROLE_OWNER -> Intent(this, OwnerDashboardActivity::class.java)
             Constants.ROLE_EMPLOYEE -> Intent(this, EmployeeDashboardActivity::class.java)
             else -> Intent(this, CustomerDashboardActivity::class.java)

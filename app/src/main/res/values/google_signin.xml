@@ -1,4 +1,4 @@
 <resources>
-    <!-- Google Sign-In Web Client ID (Replace with your actual web client ID from Firebase Console) -->
-    <string name="default_web_client_id" translatable="false">YOUR_WEB_CLIENT_ID_HERE</string>
+    <!-- Google Sign-In Web Client ID -->
+    <string name="default_web_client_id" translatable="false">891903941744-7854uj5np81egibmrk8ak1vhm3suek7j.apps.googleusercontent.com</string>
 </resources>

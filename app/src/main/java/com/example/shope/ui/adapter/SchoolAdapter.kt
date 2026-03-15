@@ -29,8 +29,8 @@ class SchoolAdapter(private val onSchoolClick: (School) -> Unit) :
 
         init {
             binding.root.setOnClickListener {
-                if (adapterPosition != RecyclerView.NO_POSITION) {
-                    onSchoolClick(getItem(adapterPosition))
+                if (bindingAdapterPosition != RecyclerView.NO_POSITION) {
+                    onSchoolClick(getItem(bindingAdapterPosition))
                 }
             }
         }

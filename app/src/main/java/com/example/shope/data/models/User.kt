@@ -10,7 +10,7 @@ data class User(
     var name: String = "",
     var email: String = "",
     var phone: String = "",
-    var role: String = "", // owner, employee, customer
+    var role: String = "", // admin, owner, employee, customer
     var profilePicture: String = "", // Base64 string
     var status: String = "active", // active, inactive
     var address: String = "", // For customers
@@ -23,10 +23,17 @@ data class User(
     constructor() : this("", "", "", "", "", "", "active", "", null, null)
     
     /**
+     * Check if user is admin
+     */
+    fun isAdmin(): Boolean {
+        return role == "admin" || email == "admin@tailorapp.com"
+    }
+    
+    /**
      * Check if user is owner
      */
     fun isOwner(): Boolean {
-        return role == "owner" || email.contains("@owner", ignoreCase = true)
+        return role == "owner" || (email.contains("@owner", ignoreCase = true) && !isAdmin())
     }
     
     /**

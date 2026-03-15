@@ -37,6 +37,14 @@ class CustomerDashboardActivity : AppCompatActivity() {
         navController.setGraph(R.navigation.nav_customer)
         
         binding.bottomNavigation.setupWithNavController(navController)
+        
+        setupToolbar()
+    }
+
+    private fun setupToolbar() {
+        val prefManager = com.example.shope.utils.PreferenceManager(this)
+        val name = prefManager.getUserName() ?: "Customer"
+        binding.tvWelcomeText.text = "Welcome, $name"
     }
 }
 

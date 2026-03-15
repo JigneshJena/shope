@@ -2,22 +2,22 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/navigation_home"
-        android:icon="@drawable/ic_add"
+        android:icon="@drawable/ic_home"
         android:title="@string/home" />
     <item
         android:id="@+id/navigation_employees"
-        android:icon="@drawable/ic_avatar"
+        android:icon="@drawable/ic_people"
         android:title="@string/employees" />
     <item
         android:id="@+id/navigation_schools"
-        android:icon="@drawable/ic_placeholder"
+        android:icon="@drawable/ic_school"
         android:title="@string/schools" />
     <item
         android:id="@+id/navigation_reports"
-        android:icon="@drawable/ic_placeholder"
+        android:icon="@drawable/ic_assessment"
         android:title="@string/reports" />
     <item
         android:id="@+id/navigation_settings"
-        android:icon="@drawable/ic_placeholder"
+        android:icon="@drawable/ic_settings"
         android:title="@string/settings" />
 </menu>

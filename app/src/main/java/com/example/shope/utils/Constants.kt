@@ -2,6 +2,7 @@ package com.example.shope.utils
 
 object Constants {
     // User Roles
+    const val ROLE_ADMIN = "admin"
     const val ROLE_OWNER = "owner"
     const val ROLE_EMPLOYEE = "employee"
     const val ROLE_CUSTOMER = "customer"
@@ -70,6 +71,7 @@ object Constants {
     
     // Firestore Collections
     const val COLLECTION_USERS = "users"
+    const val COLLECTION_OWNERS = "owners"
     const val COLLECTION_EMPLOYEES = "employees"
     const val COLLECTION_CUSTOMERS = "customers"
     const val COLLECTION_SCHOOLS = "schools"
@@ -88,7 +90,7 @@ object Constants {
     const val DB_NOTIFICATIONS = "notifications"
     
     // SharedPreferences Keys
-    const val PREF_NAME = "TailoringShopPrefs"
+    const val PREF_NAME = "TailorShopePrefs"
     const val PREF_USER_ID = "user_id"
     const val PREF_USER_NAME = "user_name"
     const val PREF_USER_EMAIL = "user_email"

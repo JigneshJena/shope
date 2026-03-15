@@ -31,14 +31,28 @@ class AuthRepository {
             Result.success(user)
         } catch (e: Exception) {
             Log.e(TAG, "Login failed", e)
-            Result.failure(e)
+            val friendlyMessage = when {
+                e.message?.contains("credential is incorrect", ignoreCase = true) == true ||
+                e.message?.contains("invalid-credential", ignoreCase = true) == true ->
+                    "Invalid email or password. Please check and try again."
+                e.message?.contains("user-not-found", ignoreCase = true) == true ->
+                    "No account found with this email. Please sign up first."
+                e.message?.contains("wrong-password", ignoreCase = true) == true ->
+                    "Incorrect password. Please try again."
+                e.message?.contains("network", ignoreCase = true) == true ->
+                    "Network error. Please check your internet connection."
+                e.message?.contains("blocked", ignoreCase = true) == true ->
+                    "This account has been blocked due to multiple failed login attempts. Please try again later."
+                else -> "Login failed: ${e.localizedMessage ?: "Unknown error"}"
+            }
+            Result.failure(Exception(friendlyMessage))
         }
     }
     
     /**
      * Sign up with email and password
      */
-    suspend fun signupWithEmail(name: String, email: String, phone: String, password: String): Result<User> {
+    suspend fun signupWithEmail(name: String, email: String, phone: String, password: String, role: String): Result<User> {
         return try {
             // Create user in Firebase Auth
             val result = auth.createUserWithEmailAndPassword(email, password).await()
@@ -50,11 +64,7 @@ class AuthRepository {
                 name = name,
                 email = email,
                 phone = phone,
-                role = when {
-                    email.contains("@owner", ignoreCase = true) -> Constants.ROLE_OWNER
-                    email.contains("@employee", ignoreCase = true) -> Constants.ROLE_EMPLOYEE
-                    else -> Constants.ROLE_CUSTOMER
-                },
+                role = role,
                 status = Constants.STATUS_ACTIVE
             )
             
@@ -66,7 +76,19 @@ class AuthRepository {
             Result.success(user)
         } catch (e: Exception) {
             Log.e(TAG, "Signup failed", e)
-            Result.failure(e)
+            val friendlyMessage = when {
+                e.message?.contains("email address is already in use", ignoreCase = true) == true ->
+                    "This email is already registered. Please login or use a different email."
+                e.message?.contains("badly formatted", ignoreCase = true) == true ->
+                    "Invalid email address. Please check and try again."
+                e.message?.contains("password is invalid", ignoreCase = true) == true ||
+                e.message?.contains("weak-password", ignoreCase = true) == true ->
+                    "Password is too weak. Please use at least 6 characters."
+                e.message?.contains("network", ignoreCase = true) == true ->
+                    "Network error. Please check your internet connection."
+                else -> e.message ?: "Signup failed. Please try again."
+            }
+            Result.failure(Exception(friendlyMessage))
         }
     }
     

@@ -18,12 +18,13 @@ data class School(
     var totalOrders: Int = 0,
     var totalRevenue: Double = 0.0,
     var addedBy: String = "", // Owner UID
+    var uniformItems: List<UniformItem> = emptyList(),
     @ServerTimestamp
     var createdAt: Date? = null,
     @ServerTimestamp
     var updatedAt: Date? = null
 ) {
-    constructor() : this("", "", "", "", "", "", "", "", "active", 0, 0.0, "", null, null)
+    constructor() : this("", "", "", "", "", "", "", "", "active", 0, 0.0, "", emptyList(), null, null)
     
     fun isActive(): Boolean = status == "active"
 }

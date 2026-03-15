@@ -34,8 +34,10 @@ class SignupActivity : AppCompatActivity() {
             val password = binding.etPassword.text.toString().trim()
             val confirmPassword = binding.etConfirmPassword.text.toString().trim()
             
+            val role = if (email.contains("@owner")) "owner" else "customer"
+            
             if (validateInputs(name, email, phone, password, confirmPassword)) {
-                viewModel.signupWithEmail(name, email, phone, password)
+                viewModel.signupWithEmail(name, email, phone, password, role)
             }
         }
         

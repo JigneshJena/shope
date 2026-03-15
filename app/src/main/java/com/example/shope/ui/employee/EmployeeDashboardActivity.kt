@@ -39,6 +39,14 @@ class EmployeeDashboardActivity : AppCompatActivity() {
         navController.setGraph(R.navigation.nav_employee)
         
         binding.bottomNavigation.setupWithNavController(navController)
+        
+        setupToolbar()
+    }
+
+    private fun setupToolbar() {
+        val prefManager = com.example.shope.utils.PreferenceManager(this)
+        binding.tvUserName.text = prefManager.getUserName() ?: "Employee"
+        binding.tvUserRole.text = "Staff" // Could fetch actual job title if available
     }
 }
 

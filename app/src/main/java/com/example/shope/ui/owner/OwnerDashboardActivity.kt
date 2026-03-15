@@ -39,6 +39,18 @@ class OwnerDashboardActivity : AppCompatActivity() {
         navController.setGraph(R.navigation.nav_owner)
         
         binding.bottomNavigation.setupWithNavController(navController)
+        
+        setupToolbar()
+    }
+
+    private fun setupToolbar() {
+        val prefManager = com.example.shope.utils.PreferenceManager(this)
+        binding.tvUserName.text = prefManager.getUserName() ?: "Shop Owner"
+        
+        binding.ivUserProfile.setOnClickListener {
+            // Navigate to profile/settings
+            navController.navigate(R.id.navigation_settings)
+        }
     }
 }
 

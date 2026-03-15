@@ -6,8 +6,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.shope.data.repository.OrderRepository
 import kotlinx.coroutines.launch
-import com.example.shope.data.models.Inventory
 import com.example.shope.data.repository.InventoryRepository
+import com.example.shope.data.models.UniformItem
+import com.example.shope.data.models.Inventory
+import com.example.shope.data.repository.SchoolRepository
+import com.example.shope.utils.Constants
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.tasks.await
 
 data class EmployeeStats(
     val pendingOrdersCount: Int = 0,
@@ -20,9 +26,14 @@ class EmployeeViewModel : ViewModel() {
     private val orderRepo = OrderRepository()
     private val inventoryRepo = InventoryRepository()
 
+    private val schoolRepo = SchoolRepository()
+
     private val _stats = MutableLiveData<EmployeeStats>()
     val stats: LiveData<EmployeeStats> = _stats
     
+    private val _stockItems = MutableLiveData<List<UniformItem>>()
+    val stockItems: LiveData<List<UniformItem>> = _stockItems
+
     private val _inventory = MutableLiveData<List<Inventory>>()
     val inventory: LiveData<List<Inventory>> = _inventory
 
@@ -48,6 +59,65 @@ class EmployeeViewModel : ViewModel() {
         }
     }
     
+    suspend fun getOwnerUid(): String? {
+        val currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: return null
+        return try {
+            val snapshot = FirebaseFirestore.getInstance().collectionGroup(Constants.COLLECTION_EMPLOYEES)
+                .whereEqualTo("employeeId", currentUserId)
+                .get()
+                .await()
+            val employee = snapshot.documents.firstOrNull()
+            employee?.getString("addedBy")
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    fun loadStockItems() {
+        viewModelScope.launch {
+            _isLoading.value = true
+            val ownerUid = getOwnerUid()
+            if (ownerUid != null) {
+                val schoolsResult = schoolRepo.getAllSchools(ownerUid)
+                if (schoolsResult.isSuccess) {
+                    val schools = schoolsResult.getOrDefault(emptyList())
+                    val allItems = mutableListOf<UniformItem>()
+                    for (school in schools) {
+                        allItems.addAll(school.uniformItems)
+                    }
+                    _stockItems.value = allItems
+                }
+            }
+            _isLoading.value = false
+        }
+    }
+    
+    fun updateStockQuantity(item: UniformItem, newQuantity: Int) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            val ownerUid = getOwnerUid()
+            if (ownerUid != null) {
+                val schoolResult = schoolRepo.getSchoolById(ownerUid, item.schoolId)
+                if (schoolResult.isSuccess) {
+                    val school = schoolResult.getOrNull()
+                    if (school != null) {
+                         val updatedItems = school.uniformItems.map { 
+                             if (it.id == item.id && it.itemName == item.itemName) {
+                                 it.copy(quantity = newQuantity)
+                             } else {
+                                 it
+                             }
+                         }
+                         school.uniformItems = updatedItems
+                         schoolRepo.updateSchool(ownerUid, school)
+                         loadStockItems() // reload
+                    }
+                }
+            }
+            _isLoading.value = false
+        }
+    }
+
     fun loadInventory() {
         viewModelScope.launch {
             _isLoading.value = true

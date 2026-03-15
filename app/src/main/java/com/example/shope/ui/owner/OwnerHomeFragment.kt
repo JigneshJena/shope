@@ -9,6 +9,8 @@ import com.example.shope.databinding.FragmentOwnerHomeBinding
 
 import androidx.fragment.app.viewModels
 import com.example.shope.viewmodel.OwnerViewModel
+import androidx.navigation.fragment.findNavController
+import com.example.shope.R
 import java.text.NumberFormat
 import java.util.Locale
 
@@ -31,7 +33,15 @@ class OwnerHomeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         
         setupObservers()
+        setupListeners()
         viewModel.loadDashboardStats()
+    }
+    
+    private fun setupListeners() {
+        binding.btnViewInventory.setOnClickListener {
+            // Navigate to Reports/Inventory tab
+            findNavController().navigate(R.id.navigation_reports)
+        }
     }
     
     private fun setupObservers() {
@@ -41,7 +51,7 @@ class OwnerHomeFragment : Fragment() {
             binding.tvTotalSchools.text = stats.totalSchools.toString()
             binding.tvLowStockCount.text = stats.lowStockCount.toString()
             
-            val currencyFormatter = NumberFormat.getCurrencyInstance(Locale("en", "IN"))
+            val currencyFormatter = NumberFormat.getCurrencyInstance(Locale.forLanguageTag("en-IN"))
             binding.tvTodaysSales.text = currencyFormatter.format(stats.todaysSales)
         }
         

@@ -42,11 +42,11 @@ class AuthViewModel : ViewModel() {
     /**
      * Sign up with email and password
      */
-    fun signupWithEmail(name: String, email: String, phone: String, password: String) {
+    fun signupWithEmail(name: String, email: String, phone: String, password: String, role: String) {
         _signupState.value = AuthState.Loading
         
         viewModelScope.launch {
-            val result = authRepository.signupWithEmail(name, email, phone, password)
+            val result = authRepository.signupWithEmail(name, email, phone, password, role)
             
             result.onSuccess { user ->
                 _signupState.value = AuthState.Success(user)

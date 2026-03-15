@@ -2,9 +2,11 @@ package com.example.shope.data.repository
 
 import android.util.Log
 import com.example.shope.data.models.Employee
+import com.example.shope.data.models.User
 import com.example.shope.utils.Constants
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.Query
 import kotlinx.coroutines.tasks.await
 
@@ -18,22 +20,27 @@ class EmployeeRepository {
     }
     
     /**
+     * Get employees subcollection reference for a specific owner
+     */
+    private fun getEmployeesCollection(ownerUid: String) = 
+        firestore.collection(Constants.COLLECTION_OWNERS)
+            .document(ownerUid)
+            .collection(Constants.COLLECTION_EMPLOYEES)
+
+    /**
      * Add employee (Owner only)
-     * Uses a secondary FirebaseApp to avoid signing out the currently logged-in owner.
+     * Create account in Firebase Auth and then save to Firestore
      */
     suspend fun addEmployee(employee: Employee, password: String): Result<String> {
         return try {
-            // Check email doesn't exist (basic check)
-            if (checkEmailExists(employee.email)) {
-                throw Exception("Email already exists")
-            }
-
-            // Create a secondary FirebaseApp to handle the new user creation without signing out the internal user
-            val appName = "SecondaryApp"
-            val firebaseApp = try {
+            val ownerUid = auth.currentUser?.uid ?: throw Exception("Not logged in")
+            
+            // 1. Create entry in Firebase Auth
+            // We use a secondary app approach to avoid signing out the current owner
+            val appName = "EmployeeCreationApp"
+            val secondaryApp = try {
                 com.google.firebase.FirebaseApp.getInstance(appName)
             } catch (e: IllegalStateException) {
-                // Initialize if not exists
                 val options = com.google.firebase.FirebaseApp.getInstance().options
                 com.google.firebase.FirebaseApp.initializeApp(
                     com.google.firebase.FirebaseApp.getInstance().applicationContext,
@@ -41,129 +48,122 @@ class EmployeeRepository {
                     appName
                 )
             }
-
-            // Get Auth instance for the secondary app
-            val secondaryAuth = FirebaseAuth.getInstance(firebaseApp)
-
-            // Create the user
-            val result = secondaryAuth.createUserWithEmailAndPassword(employee.email, password).await()
-            val employeeId = result.user?.uid ?: throw Exception("Failed to create employee auth account")
-
-            // Sign out from the secondary app (though it doesn't affect the main app, good practice)
+            
+            val secondaryAuth = FirebaseAuth.getInstance(secondaryApp)
+            val authResult = secondaryAuth.createUserWithEmailAndPassword(employee.email, password).await()
+            val employeeId = authResult.user?.uid ?: throw Exception("Failed to create auth account")
             secondaryAuth.signOut()
-
-            // Set employee ID
-            employee.employeeId = employeeId
-
-            // Save to Firestore employees collection (Using main Firestore instance which has Owner auth)
-            firestore.collection(Constants.COLLECTION_EMPLOYEES)
+            
+            // 2. Prepare Employee data
+            val newEmployee = employee.copy(
+                employeeId = employeeId,
+                addedBy = ownerUid
+            )
+            
+            // 3. Save to /owners/{ownerUid}/employees/{employeeId}
+            getEmployeesCollection(ownerUid)
                 .document(employeeId)
-                .set(employee)
+                .set(newEmployee)
                 .await()
-
-            // Also save to users collection for authentication lookup
-            val user = com.example.shope.data.models.User(
+                
+            // 4. Also save to the global /users collection for role-based login
+            val user = User(
                 userId = employeeId,
                 name = employee.name,
                 email = employee.email,
                 phone = employee.phone,
                 role = Constants.ROLE_EMPLOYEE,
                 profilePicture = employee.profilePicture,
-                status = employee.status,
-                createdAt = java.util.Date() // Ensure date is set
+                status = employee.status
             )
-
             firestore.collection(Constants.COLLECTION_USERS)
                 .document(employeeId)
                 .set(user)
                 .await()
-
-            Log.d(TAG, "Employee added successfully: $employeeId")
+                
             Result.success(employeeId)
         } catch (e: Exception) {
             Log.e(TAG, "Failed to add employee", e)
             Result.failure(e)
         }
     }
-    
+
     /**
-     * Get all employees
+     * Get all employees for the current owner in real-time
      */
-    suspend fun getAllEmployees(): Result<List<Employee>> {
-        return try {
-            val snapshot = firestore.collection(Constants.COLLECTION_EMPLOYEES)
-                .orderBy("createdAt", Query.Direction.DESCENDING)
-                .get()
-                .await()
-            
-            val employees = snapshot.toObjects(Employee::class.java)
-            Result.success(employees)
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to get employees", e)
-            Result.failure(e)
-        }
+    fun getEmployeesRealtime(ownerUid: String, onUpdate: (List<Employee>) -> Unit): ListenerRegistration {
+        return getEmployeesCollection(ownerUid)
+            .orderBy("createdAt", Query.Direction.DESCENDING)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    Log.e(TAG, "Error listening to employees", error)
+                    return@addSnapshotListener
+                }
+                val list = snapshot?.documents?.mapNotNull { it.toObject(Employee::class.java) } ?: emptyList()
+                onUpdate(list)
+            }
     }
-    
+
     /**
-     * Get active employees count
+     * Update employee details
      */
-    suspend fun getActiveEmployeesCount(): Int {
+    suspend fun updateEmployee(ownerUid: String, employee: Employee): Result<Unit> {
         return try {
-            val snapshot = firestore.collection(Constants.COLLECTION_EMPLOYEES)
-                .whereEqualTo("status", Constants.STATUS_ACTIVE)
-                .get()
-                .await()
-            
-            snapshot.size()
-        } catch (e: Exception) {
-            0
-        }
-    }
-    
-    /**
-     * Update employee
-     */
-    suspend fun updateEmployee(employee: Employee): Result<Unit> {
-        return try {
-            firestore.collection(Constants.COLLECTION_EMPLOYEES)
+            // Update in owners subcollection
+            getEmployeesCollection(ownerUid)
                 .document(employee.employeeId)
                 .set(employee)
                 .await()
-            
+                
+            // Update in global users collection
+            firestore.collection(Constants.COLLECTION_USERS)
+                .document(employee.employeeId)
+                .update(mapOf(
+                    "name" to employee.name,
+                    "phone" to employee.phone,
+                    "profilePicture" to employee.profilePicture,
+                    "status" to employee.status
+                ))
+                .await()
+                
             Result.success(Unit)
         } catch (e: Exception) {
             Log.e(TAG, "Failed to update employee", e)
             Result.failure(e)
         }
     }
-    
+
     /**
-     * Deactivate employee
+     * Delete employee
      */
-    suspend fun deactivateEmployee(employeeId: String): Result<Unit> {
+    suspend fun deleteEmployee(ownerUid: String, employeeId: String): Result<Unit> {
         return try {
-            firestore.collection(Constants.COLLECTION_EMPLOYEES)
-                .document(employeeId)
-                .update("status", Constants.STATUS_INACTIVE)
-                .await()
+            // 1. Delete from owners subcollection
+            getEmployeesCollection(ownerUid).document(employeeId).delete().await()
+            
+            // 2. Delete from global users collection
+            firestore.collection(Constants.COLLECTION_USERS).document(employeeId).delete().await()
+            
+            // Note: Auth account deletion requires Admin SDK or User to re-authenticate.
+            // In a real app, we usually just de-activate or use a Cloud Function.
+            // For now, we'll suggest deactivating or marking as deleted.
             
             Result.success(Unit)
         } catch (e: Exception) {
-            Log.e(TAG, "Failed to deactivate employee", e)
+            Log.e(TAG, "Failed to delete employee", e)
             Result.failure(e)
         }
     }
-    
-    private suspend fun checkEmailExists(email: String): Boolean {
+
+    /**
+     * Reset employee password
+     */
+    suspend fun resetPassword(email: String): Result<Unit> {
         return try {
-            val snapshot = firestore.collection(Constants.COLLECTION_EMPLOYEES)
-                .whereEqualTo("email", email)
-                .get()
-                .await()
-            
-            !snapshot.isEmpty
+            auth.sendPasswordResetEmail(email).await()
+            Result.success(Unit)
         } catch (e: Exception) {
-            false
+            Result.failure(e)
         }
     }
 }

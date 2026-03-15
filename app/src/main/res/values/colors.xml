@@ -1,53 +1,91 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Primary Colors -->
-    <color name="primary">#1976D2</color>
-    <color name="primary_dark">#0D47A1</color>
-    <color name="primary_light">#BBDEFB</color>
-    
-    <!-- Accent Colors -->
-    <color name="accent">#FF5722</color>
-    <color name="accent_light">#FFCCBC</color>
-    
+    <!-- === MODERN PREMIUM COLOR PALETTE === -->
+    <!-- Primary: Deep Indigo -->
+    <color name="primary">#5C6BC0</color>
+    <color name="primary_dark">#3949AB</color>
+    <color name="primary_darker">#283593</color>
+    <color name="primary_light">#9FA8DA</color>
+    <color name="primary_surface">#EEF0FA</color>
+
+    <!-- Secondary: Teal -->
+    <color name="secondary">#26C6DA</color>
+    <color name="secondary_dark">#00ACC1</color>
+    <color name="secondary_light">#80DEEA</color>
+    <color name="secondary_surface">#E0F7FA</color>
+
+    <!-- Accent: Amber -->
+    <color name="accent">#FFA726</color>
+    <color name="accent_light">#FFE0B2</color>
+
     <!-- Status Colors -->
-    <color name="success">#4CAF50</color>
-    <color name="success_light">#C8E6C9</color>
-    <color name="warning">#FFC107</color>
-    <color name="warning_light">#FFECB3</color>
-    <color name="error">#F44336</color>
-    <color name="error_light">#FFCDD2</color>
-    <color name="info">#2196F3</color>
-    <color name="info_light">#BBDEFB</color>
-    
+    <color name="success">#43A047</color>
+    <color name="success_light">#E8F5E9</color>
+    <color name="warning">#FB8C00</color>
+    <color name="warning_light">#FFF3E0</color>
+    <color name="error">#E53935</color>
+    <color name="error_light">#FFEBEE</color>
+    <color name="info">#1E88E5</color>
+    <color name="info_light">#E3F2FD</color>
+
     <!-- Background Colors -->
-    <color name="background">#F5F5F7</color>
+    <color name="background">#F4F5F9</color>
     <color name="surface">#FFFFFF</color>
+    <color name="surface_variant">#F0F2FF</color>
     <color name="card_background">#FFFFFF</color>
-    <color name="secondary">#03DAC6</color>
-    
+
     <!-- Text Colors -->
-    <color name="text_primary">#212121</color>
-    <color name="text_secondary">#757575</color>
-    <color name="text_hint">#9E9E9E</color>
-    <color name="text_disabled">#BDBDBD</color>
+    <color name="text_primary">#1A1D2E</color>
+    <color name="text_secondary">#5C6380</color>
+    <color name="text_hint">#9DA3B8</color>
+    <color name="text_disabled">#C4C9DC</color>
     <color name="text_on_primary">#FFFFFF</color>
-    
+
     <!-- Order Status Colors -->
-    <color name="status_pending">#FFC107</color>
-    <color name="status_in_progress">#2196F3</color>
-    <color name="status_ready">#9C27B0</color>
-    <color name="status_delivered">#4CAF50</color>
-    <color name="status_cancelled">#F44336</color>
-    
+    <color name="status_pending">#FB8C00</color>
+    <color name="status_pending_bg">#FFF3E0</color>
+    <color name="status_in_progress">#1E88E5</color>
+    <color name="status_in_progress_bg">#E3F2FD</color>
+    <color name="status_ready">#8E24AA</color>
+    <color name="status_ready_bg">#F3E5F5</color>
+    <color name="status_delivered">#43A047</color>
+    <color name="status_delivered_bg">#E8F5E9</color>
+    <color name="status_cancelled">#E53935</color>
+    <color name="status_cancelled_bg">#FFEBEE</color>
+
     <!-- Stock Status Colors -->
-    <color name="stock_in_stock">#4CAF50</color>
-    <color name="stock_low_stock">#FF9800</color>
-    <color name="stock_out_of_stock">#F44336</color>
-    
+    <color name="stock_in_stock">#43A047</color>
+    <color name="stock_low_stock">#FB8C00</color>
+    <color name="stock_out_of_stock">#E53935</color>
+
+    <!-- Stat Card Gradient Colors -->
+    <color name="stat_blue_start">#5C6BC0</color>
+    <color name="stat_blue_end">#3F51B5</color>
+    <color name="stat_teal_start">#26C6DA</color>
+    <color name="stat_teal_end">#00ACC1</color>
+    <color name="stat_purple_start">#AB47BC</color>
+    <color name="stat_purple_end">#8E24AA</color>
+    <color name="stat_orange_start">#FFA726</color>
+    <color name="stat_orange_end">#FB8C00</color>
+    <color name="stat_green_start">#66BB6A</color>
+    <color name="stat_green_end">#43A047</color>
+    <color name="stat_red_start">#EF5350</color>
+    <color name="stat_red_end">#E53935</color>
+
     <!-- Common -->
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
     <color name="transparent">#00000000</color>
-    <color name="divider">#E0E0E0</color>
-    <color name="overlay">#80000000</color>
+    <color name="divider">#E8EAED</color>
+    <color name="overlay">#66000000</color>
+    <color name="shadow">#1A5C6BC0</color>
+
+    <!-- Nav Bar -->
+    <color name="nav_selected">#5C6BC0</color>
+    <color name="nav_unselected">#78909C</color>
+    <color name="nav_background">#FFFFFF</color>
+    <color name="nav_indicator">#1A5C6BC0</color>
+    
+    <!-- Search Bar -->
+    <color name="search_bar_bg">#F5F7FA</color>
 </resources>

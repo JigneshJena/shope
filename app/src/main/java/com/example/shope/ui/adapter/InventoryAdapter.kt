@@ -33,8 +33,8 @@ class InventoryAdapter(private val onItemClick: (Inventory) -> Unit) :
 
         init {
             binding.root.setOnClickListener {
-                if (adapterPosition != RecyclerView.NO_POSITION) {
-                    onItemClick(getItem(adapterPosition))
+                if (bindingAdapterPosition != RecyclerView.NO_POSITION) {
+                    onItemClick(getItem(bindingAdapterPosition))
                 }
             }
         }
@@ -42,7 +42,7 @@ class InventoryAdapter(private val onItemClick: (Inventory) -> Unit) :
         fun bind(item: Inventory) {
             binding.tvItemName.text = item.itemName
             
-            val currencyFormatter = NumberFormat.getCurrencyInstance(Locale("en", "IN"))
+            val currencyFormatter = NumberFormat.getCurrencyInstance(Locale.forLanguageTag("en-IN"))
             binding.tvItemPrice.text = currencyFormatter.format(item.sellingPrice)
             
             binding.tvItemQuantity.text = "Qty: ${item.quantity}"

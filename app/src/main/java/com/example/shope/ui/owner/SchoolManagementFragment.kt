@@ -5,14 +5,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import com.example.shope.databinding.FragmentSchoolManagementBinding
-
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.shope.data.models.School
 import com.example.shope.databinding.DialogAddSchoolBinding
+import com.example.shope.databinding.FragmentSchoolManagementBinding
 import com.example.shope.ui.adapter.SchoolAdapter
 import com.example.shope.viewmodel.OwnerViewModel
+import com.example.shope.utils.Constants
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 class SchoolManagementFragment : Fragment() {
@@ -33,17 +34,18 @@ class SchoolManagementFragment : Fragment() {
     
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        
         setupRecyclerView()
         setupObservers()
         setupListeners()
-        
         viewModel.loadSchools()
     }
     
     private fun setupRecyclerView() {
         adapter = SchoolAdapter { school ->
-            // TODO: Show school details or edit
+            val bundle = Bundle().apply {
+                putString("schoolId", school.schoolId)
+            }
+            findNavController().navigate(com.example.shope.R.id.school_products, bundle)
         }
         binding.rvSchools.layoutManager = LinearLayoutManager(requireContext())
         binding.rvSchools.adapter = adapter
@@ -52,10 +54,11 @@ class SchoolManagementFragment : Fragment() {
     private fun setupObservers() {
         viewModel.schools.observe(viewLifecycleOwner) { schools ->
             adapter.submitList(schools)
+            binding.progressBar.visibility = View.GONE
         }
         
         viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
-            // TODO: Show/hide loading
+            binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
         }
     }
     
@@ -82,7 +85,8 @@ class SchoolManagementFragment : Fragment() {
                         schoolName = name,
                         principalName = principal,
                         contactNumber = contact,
-                        address = address
+                        address = address,
+                        uniformItems = emptyList()
                     )
                     viewModel.addSchool(school)
                 }

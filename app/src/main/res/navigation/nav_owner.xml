@@ -21,7 +21,11 @@
         android:id="@+id/navigation_schools"
         android:name="com.example.shope.ui.owner.SchoolManagementFragment"
         android:label="@string/schools"
-        tools:layout="@layout/fragment_school_management" />
+        tools:layout="@layout/fragment_school_management">
+        <action
+            android:id="@+id/action_navigation_schools_to_school_products"
+            app:destination="@id/school_products" />
+    </fragment>
 
     <fragment
         android:id="@+id/navigation_reports"
@@ -34,5 +38,15 @@
         android:name="com.example.shope.ui.owner.OwnerSettingsFragment"
         android:label="@string/settings"
         tools:layout="@layout/fragment_owner_settings" />
+
+    <fragment
+        android:id="@+id/school_products"
+        android:name="com.example.shope.ui.owner.SchoolProductsFragment"
+        android:label="School Products"
+        tools:layout="@layout/fragment_school_products">
+        <argument
+            android:name="schoolId"
+            app:argType="string" />
+    </fragment>
 
 </navigation>

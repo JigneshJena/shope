@@ -40,9 +40,13 @@ class InventoryManagementFragment : Fragment() {
     ) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             result.data?.data?.let { uri ->
-                val bitmap = MediaStore.Images.Media.getBitmap(requireContext().contentResolver, uri)
-                selectedImageBase64 = encodeImageToBase64(bitmap)
-                dialogBinding?.ivItemImage?.setImageBitmap(bitmap)
+                val inputStream = requireContext().contentResolver.openInputStream(uri)
+                val bitmap = BitmapFactory.decodeStream(inputStream)
+                inputStream?.close()
+                bitmap?.let {
+                    selectedImageBase64 = encodeImageToBase64(it)
+                    dialogBinding?.ivItemImage?.setImageBitmap(it)
+                }
             }
         }
     }
