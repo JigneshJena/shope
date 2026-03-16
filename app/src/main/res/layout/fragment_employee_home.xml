@@ -43,29 +43,14 @@
             app:layout_constraintStart_toStartOf="@id/tvGreetingLabel"
             app:layout_constraintTop_toBottomOf="@id/tvGreetingLabel" />
 
-        <!-- Quick Actions Header -->
-        <TextView
-            android:id="@+id/tvActionsLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="24dp"
-            android:layout_marginTop="24dp"
-            android:text="Quick Operations"
-            android:textColor="@color/text_primary"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/headerView"
-            app:layout_constraintVertical_bias="0" />
-
-        <!-- Stock Inventory Header -->
+        <!-- Inventory Header -->
         <TextView
             android:id="@+id/tvStockLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="24dp"
             android:layout_marginTop="24dp"
-            android:text="Owner's Stock Items"
+            android:text="Stock Items"
             android:textColor="@color/text_primary"
             android:textSize="18sp"
             android:textStyle="bold"

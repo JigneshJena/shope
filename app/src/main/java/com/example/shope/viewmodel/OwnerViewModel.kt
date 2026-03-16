@@ -155,9 +155,8 @@ class OwnerViewModel : ViewModel() {
 
     fun loadSchoolById(schoolId: String) {
         viewModelScope.launch {
-            val ownerUid = auth.currentUser?.uid ?: return@launch
             _isLoading.value = true
-            val result = schoolRepo.getSchoolById(ownerUid, schoolId)
+            val result = schoolRepo.getSchoolById(schoolId)
             _currentSchool.value = result.getOrDefault(null)
             _isLoading.value = false
         }
@@ -176,11 +175,9 @@ class OwnerViewModel : ViewModel() {
 
     fun updateProductsForSchool(schoolId: String, items: List<com.example.shope.data.models.UniformItem>) {
         viewModelScope.launch {
-            val ownerUid = auth.currentUser?.uid ?: return@launch
             val school = _currentSchool.value ?: return@launch
             school.uniformItems = items
-            _isLoading.value = true
-            val result = schoolRepo.updateSchool(ownerUid, school)
+            val result = schoolRepo.updateSchool(school)
             if (result.isSuccess) {
                 _currentSchool.value = school
             }

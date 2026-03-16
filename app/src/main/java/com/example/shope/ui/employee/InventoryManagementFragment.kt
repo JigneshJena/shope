@@ -71,7 +71,7 @@ class InventoryManagementFragment : Fragment() {
     }
     
     private fun setupRecyclerView() {
-        adapter = InventoryAdapter { item ->
+        adapter = InventoryAdapter(false) { item ->
             // TODO: Edit item
         }
         binding.rvInventory.layoutManager = LinearLayoutManager(requireContext())

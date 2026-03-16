@@ -111,6 +111,7 @@ class SchoolProductsFragment : Fragment() {
             itemBinding.etItemName.setText(existingItem.itemName)
             itemBinding.etCategory.setText(existingItem.category)
             itemBinding.etPrice.setText(existingItem.price.toString())
+            itemBinding.etQuantity.setText(existingItem.quantity.toString())
             if (existingItem.itemImage.isNotEmpty()) {
                 itemBinding.ivItemImage.setImageBitmap(ImageUtils.base64ToBitmap(existingItem.itemImage))
             }
@@ -133,15 +134,17 @@ class SchoolProductsFragment : Fragment() {
                 val name = itemBinding.etItemName.text.toString()
                 val category = itemBinding.etCategory.text.toString()
                 val priceStr = itemBinding.etPrice.text.toString()
+                val qtyStr = itemBinding.etQuantity.text.toString()
                 
                 if (name.isNotEmpty()) {
                     val school = viewModel.currentSchool.value
                     onItemSaved(UniformItem(
-                        id = existingItem?.id ?: "",
+                        id = existingItem?.id ?: "item_${System.currentTimeMillis()}",
                         itemName = name,
                         category = if (category.isEmpty()) "Regular" else category,
                         itemImage = selectedItemImage,
                         price = priceStr.toDoubleOrNull() ?: 0.0,
+                        quantity = qtyStr.toIntOrNull() ?: 0,
                         schoolId = school?.schoolId ?: schoolId ?: "",
                         schoolName = school?.schoolName ?: ""
                     ))

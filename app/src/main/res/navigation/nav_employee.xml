@@ -31,7 +31,7 @@
 
     <fragment
         android:id="@+id/navigation_billing"
-        android:name="com.example.shope.ui.employee.BillingFragment"
+        android:name="com.example.shope.ui.customer.BillingFragment"
         android:label="@string/billing"
         tools:layout="@layout/fragment_billing" />
 

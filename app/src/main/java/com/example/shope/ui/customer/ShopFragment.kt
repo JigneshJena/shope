@@ -7,8 +7,9 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.example.shope.databinding.FragmentShopBinding
 
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import com.example.shope.viewmodel.CustomerViewModel
+import com.google.android.material.snackbar.Snackbar
 
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.shope.ui.adapter.InventoryAdapter
@@ -17,7 +18,7 @@ class ShopFragment : Fragment() {
     
     private var _binding: FragmentShopBinding? = null
     private val binding get() = _binding!!
-    private val viewModel: CustomerViewModel by viewModels()
+    private val viewModel: CustomerViewModel by activityViewModels()
     private lateinit var adapter: InventoryAdapter
     
     override fun onCreateView(
@@ -38,8 +39,12 @@ class ShopFragment : Fragment() {
     }
     
     private fun setupRecyclerView() {
-        adapter = InventoryAdapter { item ->
-            // TODO: Handle item click (e.g. view details, add to cart)
+        adapter = InventoryAdapter(true) { item ->
+            val bottomSheet = ProductDetailBottomSheet(item) { product, quantity ->
+                viewModel.addToCart(product, quantity)
+                Snackbar.make(binding.root, "${product.itemName} added to cart", Snackbar.LENGTH_SHORT).show()
+            }
+            bottomSheet.show(childFragmentManager, ProductDetailBottomSheet.TAG)
         }
         binding.rvShop.layoutManager = GridLayoutManager(requireContext(), 2)
         binding.rvShop.adapter = adapter

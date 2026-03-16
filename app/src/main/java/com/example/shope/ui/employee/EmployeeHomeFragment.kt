@@ -77,6 +77,10 @@ class EmployeeHomeFragment : Fragment() {
         viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
             // binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
         }
+
+        viewModel.message.observe(viewLifecycleOwner) { msg ->
+            com.google.android.material.snackbar.Snackbar.make(binding.root, msg, com.google.android.material.snackbar.Snackbar.LENGTH_LONG).show()
+        }
     }
 
     private fun showUpdateStockDialog(item: UniformItem) {

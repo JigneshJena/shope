@@ -21,7 +21,17 @@
         android:id="@+id/navigation_cart"
         android:name="com.example.shope.ui.customer.CartFragment"
         android:label="@string/cart"
-        tools:layout="@layout/fragment_cart" />
+        tools:layout="@layout/fragment_cart">
+        <action
+            android:id="@+id/action_navigation_cart_to_navigation_billing"
+            app:destination="@id/navigation_billing" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_billing"
+        android:name="com.example.shope.ui.customer.BillingFragment"
+        android:label="Billing"
+        tools:layout="@layout/fragment_billing" />
 
     <fragment
         android:id="@+id/navigation_profile"
