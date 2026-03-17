@@ -64,26 +64,43 @@ class EmployeeViewModel : ViewModel() {
     fun loadStockItems() {
         viewModelScope.launch {
             _isLoading.value = true
-            val schoolsResult = schoolRepo.getAllSchools() // Fetch all schools globally
+            val allCombinedItems = mutableListOf<UniformItem>()
+
+            // 1. Load Regular Inventory (Assets)
+            val inventoryResult = inventoryRepo.getAllInventoryItems()
+            if (inventoryResult.isSuccess) {
+                val inventoryItems = inventoryResult.getOrDefault(emptyList()).map { item ->
+                    UniformItem(
+                        id = item.itemId,
+                        itemName = item.itemName,
+                        itemImage = item.itemImage,
+                        category = item.category,
+                        price = item.sellingPrice,
+                        quantity = item.quantity,
+                        status = item.status,
+                        schoolId = "general",
+                        schoolName = "General Stock"
+                    )
+                }
+                allCombinedItems.addAll(inventoryItems)
+            }
+
+            // 2. Load School Uniforms
+            val schoolsResult = schoolRepo.getAllSchools()
             if (schoolsResult.isSuccess) {
                 val schools = schoolsResult.getOrDefault(emptyList())
-                Log.d("EmployeeViewModel", "Loaded ${schools.size} schools")
-                val allItems = mutableListOf<UniformItem>()
                 for (school in schools) {
-                    // Populate school details into items for easier reference and display
                     val schoolItems = school.uniformItems.map { item ->
                         item.copy(
                             schoolId = school.schoolId,
                             schoolName = school.schoolName
                         )
                     }
-                    allItems.addAll(schoolItems)
+                    allCombinedItems.addAll(schoolItems)
                 }
-                Log.d("EmployeeViewModel", "Total stock items: ${allItems.size}")
-                _stockItems.value = allItems
-            } else {
-                Log.e("EmployeeViewModel", "Error loading schools", schoolsResult.exceptionOrNull())
             }
+            
+            _stockItems.value = allCombinedItems
             _isLoading.value = false
         }
     }
@@ -95,34 +112,43 @@ class EmployeeViewModel : ViewModel() {
         viewModelScope.launch {
             _isLoading.value = true
             Log.d("EmployeeViewModel", "Updating stock for item: ${item.itemName}, new qty: $newQuantity")
-            val schoolResult = schoolRepo.getSchoolById(item.schoolId)
-            if (schoolResult.isSuccess) {
-                val school = schoolResult.getOrNull()
-                if (school != null) {
-                    Log.d("EmployeeViewModel", "Found school: ${school.schoolName}, updating item...")
-                    val updatedItems = school.uniformItems.map { 
-                        if (it.itemName == item.itemName) {
-                            it.copy(quantity = newQuantity)
-                        } else {
-                            it
-                        }
-                    }
-                    school.uniformItems = updatedItems
-                    val updateResult = schoolRepo.updateSchool(school)
-                    if (updateResult.isSuccess) {
-                        Log.d("EmployeeViewModel", "Stock updated successfully in Firestore")
-                        _message.value = "Stock updated successfully!"
-                        loadStockItems() // reload
-                    } else {
-                        val error = updateResult.exceptionOrNull()?.message ?: "Unknown error"
-                        Log.e("EmployeeViewModel", "Failed to update school: $error")
-                        _message.value = "Update failed: $error"
-                    }
+            
+            if (item.schoolId == "general") {
+                // Update Regular Inventory
+                val result = inventoryRepo.setStockQuantity(item.id, newQuantity)
+                if (result.isSuccess) {
+                    _message.value = "Stock updated successfully!"
+                    loadStockItems()
                 } else {
-                    _message.value = "School not found"
+                    _message.value = "Update failed: ${result.exceptionOrNull()?.message}"
                 }
             } else {
-                _message.value = "Error fetching school data"
+                // Update School Uniform Item
+                val schoolResult = schoolRepo.getSchoolById(item.schoolId)
+                if (schoolResult.isSuccess) {
+                    val school = schoolResult.getOrNull()
+                    if (school != null) {
+                        val updatedItems = school.uniformItems.map { 
+                            if (it.itemName == item.itemName) {
+                                it.copy(quantity = newQuantity)
+                            } else {
+                                it
+                            }
+                        }
+                        school.uniformItems = updatedItems
+                        val updateResult = schoolRepo.updateSchool(school)
+                        if (updateResult.isSuccess) {
+                            _message.value = "Stock updated successfully!"
+                            loadStockItems()
+                        } else {
+                            _message.value = "Update failed: ${updateResult.exceptionOrNull()?.message}"
+                        }
+                    } else {
+                        _message.value = "School not found"
+                    }
+                } else {
+                    _message.value = "Error fetching school data"
+                }
             }
             _isLoading.value = false
         }

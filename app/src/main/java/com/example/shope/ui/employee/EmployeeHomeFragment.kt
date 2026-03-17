@@ -11,8 +11,8 @@ import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.shope.R
 import com.example.shope.data.models.UniformItem
+import com.example.shope.ui.adapter.EmployeeStockAdapter
 import com.example.shope.ui.adapter.CustomerAdapter
-import com.example.shope.ui.adapter.UniformConfigAdapter
 import com.example.shope.viewmodel.EmployeeViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
@@ -22,7 +22,7 @@ class EmployeeHomeFragment : Fragment() {
     private var _binding: FragmentEmployeeHomeBinding? = null
     private val binding get() = _binding!!
     private val viewModel: EmployeeViewModel by viewModels()
-    private lateinit var stockAdapter: UniformConfigAdapter
+    private lateinit var stockAdapter: EmployeeStockAdapter
     private lateinit var customerAdapter: CustomerAdapter
     
     override fun onCreateView(
@@ -46,13 +46,9 @@ class EmployeeHomeFragment : Fragment() {
     }
     
     private fun setupRecyclerViews() {
-        stockAdapter = UniformConfigAdapter(
-            onEdit = { position -> showUpdateStockDialog(stockAdapter.currentList[position]) },
-            onRemove = { position -> 
-                val item = stockAdapter.currentList[position]
-                viewModel.updateStockQuantity(item, 0)
-            }
-        )
+        stockAdapter = EmployeeStockAdapter { item ->
+            showUpdateStockDialog(item)
+        }
         binding.rvStockItems.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = stockAdapter

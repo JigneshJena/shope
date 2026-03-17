@@ -112,6 +112,22 @@ class InventoryRepository {
 
     
     /**
+     * Set absolute stock quantity
+     */
+    suspend fun setStockQuantity(itemId: String, newQuantity: Int): Result<Unit> {
+        return try {
+            firestore.collection(Constants.COLLECTION_INVENTORY)
+                .document(itemId)
+                .update("quantity", newQuantity)
+                .await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to set stock quantity", e)
+            Result.failure(e)
+        }
+    }
+
+    /**
      * Adjust stock quantity
      */
     suspend fun adjustStock(itemId: String, quantityChange: Int): Result<Unit> {
