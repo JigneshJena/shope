@@ -54,6 +54,11 @@ class CartFragment : Fragment() {
         viewModel.cartItems.observe(viewLifecycleOwner) { items ->
             adapter.submitList(items)
             updateTotal(items)
+            
+            val isEmpty = items.isEmpty()
+            binding.layoutEmptyCart.visibility = if (isEmpty) View.VISIBLE else View.GONE
+            binding.cvCheckout.visibility = if (isEmpty) View.GONE else View.VISIBLE
+            binding.rvCartItems.visibility = if (isEmpty) View.GONE else View.VISIBLE
         }
     }
 
