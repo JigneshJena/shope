@@ -31,7 +31,19 @@
         android:id="@+id/navigation_billing"
         android:name="com.example.shope.ui.customer.BillingFragment"
         android:label="Billing"
-        tools:layout="@layout/fragment_billing" />
+        tools:layout="@layout/fragment_billing">
+        <action
+            android:id="@+id/action_navigation_billing_to_orderSuccessFragment"
+            app:destination="@id/orderSuccessFragment"
+            app:popUpTo="@id/navigation_shop"
+            app:popUpToInclusive="false" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/orderSuccessFragment"
+        android:name="com.example.shope.ui.customer.OrderSuccessFragment"
+        android:label="Order Success"
+        tools:layout="@layout/fragment_order_success" />
 
     <fragment
         android:id="@+id/navigation_profile"

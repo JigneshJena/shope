@@ -13,6 +13,8 @@ import com.google.android.material.snackbar.Snackbar
 
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.shope.ui.adapter.InventoryAdapter
+import androidx.navigation.fragment.findNavController
+import com.example.shope.R
 
 class ShopFragment : Fragment() {
     
@@ -35,15 +37,34 @@ class ShopFragment : Fragment() {
         
         setupRecyclerView()
         setupObservers()
+        setupListeners()
         viewModel.loadProducts()
+    }
+    
+    private fun setupListeners() {
+:w            findNavController().navigate(R.id.navigation_cart)
+        }
     }
     
     private fun setupRecyclerView() {
         adapter = InventoryAdapter(true) { item ->
-            val bottomSheet = ProductDetailBottomSheet(item) { product, quantity ->
-                viewModel.addToCart(product, quantity)
-                Snackbar.make(binding.root, "${product.itemName} added to cart", Snackbar.LENGTH_SHORT).show()
-            }
+            val bottomSheet = ProductDetailBottomSheet(
+                item,
+                onAddToCart = { product, quantity ->
+                    viewModel.addToCart(product, quantity)
+                    val bottomNav = requireActivity().findViewById<View>(R.id.bottom_navigation)
+                    Snackbar.make(binding.root, "${product.itemName} added to cart", Snackbar.LENGTH_SHORT)
+                        .setAnchorView(bottomNav)
+                        .setAction("VIEW") {
+                            findNavController().navigate(R.id.navigation_cart)
+                        }
+                        .show()
+                },
+                onBuyNow = { product, quantity ->
+                    viewModel.addToCart(product, quantity)
+                    findNavController().navigate(R.id.navigation_cart)
+                }
+            )
             bottomSheet.show(childFragmentManager, ProductDetailBottomSheet.TAG)
         }
         binding.rvShop.layoutManager = GridLayoutManager(requireContext(), 2)

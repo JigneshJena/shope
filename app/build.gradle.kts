@@ -34,6 +34,7 @@ android {
     
     buildFeatures {
         viewBinding = true
+        buildConfig = true
     }
 }
 
@@ -54,6 +55,8 @@ dependencies {
     implementation(libs.firebase.messaging)
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.auth)
+    implementation(libs.firebase.appcheck.playintegrity)
+    implementation(libs.firebase.appcheck.debug)
     implementation("com.google.firebase:firebase-storage")
     
     // Google Sign-In

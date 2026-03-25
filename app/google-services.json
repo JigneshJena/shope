@@ -1,63 +1,34 @@
 {
   "project_info": {
-    "project_number": "123613200782",
-    "firebase_url": "https://college-project-63425-default-rtdb.firebaseio.com",
-    "project_id": "college-project-63425",
-    "storage_bucket": "college-project-63425.firebasestorage.app"
+    "project_number": "891903941744",
+    "firebase_url": "https://curd-prctice-default-rtdb.firebaseio.com",
+    "project_id": "curd-prctice",
+    "storage_bucket": "curd-prctice.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:123613200782:android:e3d6db9583bc99fd4c64df",
+        "mobilesdk_app_id": "1:891903941744:android:32a72bdc70030fa09d68b5",
         "android_client_info": {
           "package_name": "com.example.shope"
         }
       },
       "oauth_client": [
         {
-          "client_id": "123613200782-j6eg6ot524m0ercpmgd19muvnsvgpvhg.apps.googleusercontent.com",
+          "client_id": "891903941744-7854uj5np81egibmrk8ak1vhm3suek7j.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyA2m3iVKEe8Z8mur4kNYiyvaZ_KEpYWwm8"
+          "current_key": "AIzaSyChwsW8iewuv3gu6yQ56zzifwQb_mNYKIY"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "123613200782-j6eg6ot524m0ercpmgd19muvnsvgpvhg.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:123613200782:android:f5eea389361e5ea54c64df",
-        "android_client_info": {
-          "package_name": "com.example.shopesmart"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "123613200782-j6eg6ot524m0ercpmgd19muvnsvgpvhg.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyA2m3iVKEe8Z8mur4kNYiyvaZ_KEpYWwm8"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "123613200782-j6eg6ot524m0ercpmgd19muvnsvgpvhg.apps.googleusercontent.com",
+              "client_id": "891903941744-7854uj5np81egibmrk8ak1vhm3suek7j.apps.googleusercontent.com",
               "client_type": 3
             }
           ]
