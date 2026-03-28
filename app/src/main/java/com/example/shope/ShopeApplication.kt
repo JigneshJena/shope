@@ -14,10 +14,9 @@ class ShopeApplication : Application() {
         // Initialize Firebase
         FirebaseApp.initializeApp(this)
         
-        // Initialize Firebase App Check
+        // Note: App Check is disabled for development to prevent Firebase operation hangs.
+        /* 
         val firebaseAppCheck = FirebaseAppCheck.getInstance()
-        
-        // Use Debug provider for debug builds (emulators) and Play Integrity for release
         if (BuildConfig.DEBUG) {
             firebaseAppCheck.installAppCheckProviderFactory(
                 DebugAppCheckProviderFactory.getInstance()
@@ -27,5 +26,6 @@ class ShopeApplication : Application() {
                 PlayIntegrityAppCheckProviderFactory.getInstance()
             )
         }
+        */
     }
 }

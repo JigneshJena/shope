@@ -69,7 +69,6 @@ class OrderRepository {
     suspend fun getAllOrders(): Result<List<Order>> {
         return try {
             val snapshot = firestore.collection(Constants.COLLECTION_ORDERS)
-                .orderBy("orderDate", Query.Direction.DESCENDING)
                 .get()
                 .await()
             
@@ -88,7 +87,6 @@ class OrderRepository {
         return try {
             val snapshot = firestore.collection(Constants.COLLECTION_ORDERS)
                 .whereEqualTo("status", status)
-                .orderBy("orderDate", Query.Direction.DESCENDING)
                 .get()
                 .await()
             
@@ -107,7 +105,6 @@ class OrderRepository {
         return try {
             val snapshot = firestore.collection(Constants.COLLECTION_ORDERS)
                 .whereEqualTo("customerId", customerId)
-                .orderBy("orderDate", Query.Direction.DESCENDING)
                 .get()
                 .await()
             
@@ -180,7 +177,7 @@ class OrderRepository {
      */
     private suspend fun updateInventoryForOrder(items: List<OrderItem>) {
         items.forEach { item ->
-            inventoryRepository.adjustStock(item.itemId, -item.quantity)
+            inventoryRepository.adjustStock(item.itemId, -item.quantity, item.schoolId)
         }
     }
     
@@ -189,22 +186,28 @@ class OrderRepository {
      */
     private suspend fun updateCustomerStats(customerId: String, orderAmount: Double) {
         try {
-            val customerRef = firestore.collection(Constants.COLLECTION_CUSTOMERS)
+            val userRef = firestore.collection(Constants.COLLECTION_USERS)
                 .document(customerId)
             
             firestore.runTransaction { transaction ->
-                val snapshot = transaction.get(customerRef)
-                val currentOrders = snapshot.getLong("totalOrders") ?: 0
-                val currentSpent = snapshot.getDouble("totalSpent") ?: 0.0
-                
-                transaction.update(customerRef, mapOf(
-                    "totalOrders" to currentOrders + 1,
-                    "totalSpent" to currentSpent + orderAmount,
-                    "lastVisitDate" to System.currentTimeMillis()
-                ))
+                val snapshot = transaction.get(userRef)
+                if (snapshot.exists()) {
+                    val currentOrders = snapshot.getLong("totalOrders") ?: 0
+                    val currentSpent = snapshot.getDouble("totalSpent") ?: 0.0
+                    
+                    transaction.update(userRef, mapOf(
+                        "totalOrders" to currentOrders + 1,
+                        "totalSpent" to currentSpent + orderAmount,
+                        "updatedAt" to com.google.firebase.firestore.FieldValue.serverTimestamp()
+                    ))
+                } else {
+                    // If user document doesn't exist in users collection (rare), don't fail the order
+                    Log.w(TAG, "User document $customerId not found in users collection for stats update")
+                }
             }.await()
         } catch (e: Exception) {
             Log.e(TAG, "Failed to update customer stats", e)
+            // We don't throw here to ensure the order is still considered "created"
         }
     }
 }

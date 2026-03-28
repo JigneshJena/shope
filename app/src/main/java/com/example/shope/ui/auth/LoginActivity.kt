@@ -119,7 +119,7 @@ class LoginActivity : AppCompatActivity() {
                     }
                     
                     // Save session with effective role
-                    prefManager.saveUserSession(user.userId, user.name, user.email, effectiveRole)
+                    prefManager.saveUserSession(user.userId, user.name, user.email, effectiveRole, user.phone)
                     
                     // Navigate to appropriate dashboard
                     navigateToDashboard(effectiveRole)

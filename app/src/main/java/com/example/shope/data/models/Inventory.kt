@@ -25,12 +25,13 @@ data class Inventory(
     var description: String = "",
     var status: String = "active",
     var addedBy: String = "",
+    var schoolId: String = "",
     @ServerTimestamp
     var createdAt: Date? = null,
     @ServerTimestamp
     var updatedAt: Date? = null
 ) {
-    constructor() : this("", "", "", "", "", "", "", 0, "Pieces", 0.0, 0.0, 0.0, "", 5, "", "", "", "active", "", null, null)
+    constructor() : this("", "", "", "", "", "", "", 0, "Pieces", 0.0, 0.0, 0.0, "", 5, "", "", "", "active", "", "", null, null)
     
     fun getStockStatus(): String {
         return when {

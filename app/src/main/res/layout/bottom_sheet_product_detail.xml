@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/bg_bottom_sheet"
-    android:paddingBottom="32dp">
+    android:paddingBottom="80dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -167,9 +167,11 @@
                     android:textSize="14sp"
                     android:textStyle="bold"
                     android:textAllCaps="false"
+                    android:textColor="@color/white"
                     app:cornerRadius="16dp"
                     app:backgroundTint="@color/primary"
-                    app:icon="@drawable/ic_placeholder"
+                    app:icon="@drawable/ic_shopping_cart"
+                    app:iconTint="@color/white"
                     app:iconGravity="textStart" />
             </LinearLayout>
 

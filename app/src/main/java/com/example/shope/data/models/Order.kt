@@ -60,7 +60,9 @@ data class OrderItem(
     var itemName: String = "",
     var quantity: Int = 0,
     var price: Double = 0.0,
-    var subtotal: Double = 0.0
+    var subtotal: Double = 0.0,
+    var itemImage: String = "",
+    var schoolId: String = "" // To identify source for stock update
 ) {
-    constructor() : this("", "", 0, 0.0, 0.0)
+    constructor() : this("", "", 0, 0.0, 0.0, "", "")
 }

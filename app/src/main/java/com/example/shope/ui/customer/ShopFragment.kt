@@ -42,7 +42,8 @@ class ShopFragment : Fragment() {
     }
     
     private fun setupListeners() {
-:w            findNavController().navigate(R.id.navigation_cart)
+        binding.btnCart.setOnClickListener {
+            findNavController().navigate(R.id.navigation_cart)
         }
     }
     

@@ -49,7 +49,6 @@ class InventoryRepository {
         return try {
             val snapshot = firestore.collection(Constants.COLLECTION_INVENTORY)
                 .whereEqualTo("status", Constants.STATUS_ACTIVE)
-                .orderBy("createdAt", Query.Direction.DESCENDING)
                 .get()
                 .await()
             
@@ -130,18 +129,48 @@ class InventoryRepository {
     /**
      * Adjust stock quantity
      */
-    suspend fun adjustStock(itemId: String, quantityChange: Int): Result<Unit> {
+    suspend fun adjustStock(itemId: String, quantityChange: Int, schoolId: String = ""): Result<Unit> {
         return try {
-            val docRef = firestore.collection(Constants.COLLECTION_INVENTORY)
-                .document(itemId)
-            
-            firestore.runTransaction { transaction ->
-                val snapshot = transaction.get(docRef)
-                val currentQty = snapshot.getLong("quantity")?.toInt() ?: 0
-                val newQty = (currentQty + quantityChange).coerceAtLeast(0)
+            if (schoolId.isNotEmpty()) {
+                // Update nested school inventory
+                val schoolRef = firestore.collection(Constants.COLLECTION_SCHOOLS)
+                    .document(schoolId)
                 
-                transaction.update(docRef, "quantity", newQty)
-            }.await()
+                firestore.runTransaction { transaction ->
+                    val snapshot = transaction.get(schoolRef)
+                    if (snapshot.exists()) {
+                        val school = snapshot.toObject(com.example.shope.data.models.School::class.java)
+                        school?.let { s ->
+                            val updatedItems = s.uniformItems.toMutableList()
+                            val index = updatedItems.indexOfFirst { it.id == itemId }
+                            if (index != -1) {
+                                val item = updatedItems[index]
+                                val currentQty = item.quantity
+                                val newQty = (currentQty + quantityChange).coerceAtLeast(0)
+                                updatedItems[index] = item.copy(quantity = newQty)
+                                transaction.update(schoolRef, "uniformItems", updatedItems)
+                            }
+                        }
+                    } else {
+                        Log.w(TAG, "School $schoolId not found for nested stock adjustment")
+                    }
+                }.await()
+            } else {
+                // Standard inventory update
+                val docRef = firestore.collection(Constants.COLLECTION_INVENTORY)
+                    .document(itemId)
+                
+                firestore.runTransaction { transaction ->
+                    val snapshot = transaction.get(docRef)
+                    if (snapshot.exists()) {
+                        val currentQty = snapshot.getLong("quantity")?.toInt() ?: 0
+                        val newQty = (currentQty + quantityChange).coerceAtLeast(0)
+                        transaction.update(docRef, "quantity", newQty)
+                    } else {
+                        Log.w(TAG, "Item $itemId not found in inventory for stock adjustment")
+                    }
+                }.await()
+            }
             
             Result.success(Unit)
         } catch (e: Exception) {

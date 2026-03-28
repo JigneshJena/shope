@@ -45,29 +45,41 @@ class BillingFragment : Fragment() {
     }
 
     private fun setupListeners() {
+        val prefManager = com.example.shope.utils.PreferenceManager(requireContext())
+        
         binding.toolbar.setNavigationOnClickListener {
             findNavController().navigateUp()
         }
 
         binding.btnPayNow.setOnClickListener {
-            val method = when {
-                binding.rbUpi.isChecked -> "UPI"
-                binding.rbCard.isChecked -> "Card"
-                else -> "Cash"
+            val customerId = prefManager.getUserId() ?: ""
+            val customerName = prefManager.getUserName() ?: ""
+            val customerPhone = prefManager.getUserPhone() ?: ""
+            
+            if (customerId.isEmpty()) {
+                Snackbar.make(binding.root, "Error: User not logged in", Snackbar.LENGTH_SHORT).show()
+                return@setOnClickListener
             }
             
             binding.btnPayNow.isEnabled = false
             binding.btnPayNow.text = "Processing..."
             
-            // Logic to create order in Firestore would go here
-            // For now, we simulate a successful transaction
-            Snackbar.make(binding.root, "Processing payment via $method...", Snackbar.LENGTH_SHORT).show()
-            
-            // Simulation of network delay
-            binding.root.postDelayed({
-                viewModel.clearCart()
-                findNavController().navigate(R.id.action_navigation_billing_to_orderSuccessFragment)
-            }, 1500)
+            viewModel.placeOrder(customerId, customerName, customerPhone)
+        }
+        
+        viewModel.orderState.observe(viewLifecycleOwner) { result ->
+            result?.let {
+                if (it.isSuccess) {
+                    viewModel.clearOrderState()
+                    findNavController().navigate(R.id.action_navigation_billing_to_orderSuccessFragment)
+                } else {
+                    binding.btnPayNow.isEnabled = true
+                    binding.btnPayNow.text = "Pay Now"
+                    val error = it.exceptionOrNull()?.message ?: "Unknown error"
+                    android.util.Log.e("BillingFragment", "Order failed: $error")
+                    Snackbar.make(binding.root, "Order failed: $error", Snackbar.LENGTH_LONG).show()
+                }
+            }
         }
     }
 

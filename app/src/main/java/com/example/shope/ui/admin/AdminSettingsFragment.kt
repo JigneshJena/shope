@@ -26,6 +26,10 @@ class AdminSettingsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         
+        binding.btnEditProfile.setOnClickListener {
+            com.google.android.material.snackbar.Snackbar.make(binding.root, "Edit Profile feature coming soon!", com.google.android.material.snackbar.Snackbar.LENGTH_SHORT).show()
+        }
+
         binding.btnLogout.setOnClickListener {
             FirebaseAuth.getInstance().signOut()
             startActivity(Intent(requireContext(), LoginActivity::class.java))

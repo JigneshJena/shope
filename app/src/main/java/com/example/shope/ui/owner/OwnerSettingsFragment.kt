@@ -39,6 +39,10 @@ class OwnerSettingsFragment : Fragment() {
     }
     
     private fun setupClickListeners() {
+        binding.btnEditProfile.setOnClickListener {
+            com.google.android.material.snackbar.Snackbar.make(binding.root, "Edit Profile feature coming soon!", com.google.android.material.snackbar.Snackbar.LENGTH_SHORT).show()
+        }
+
         binding.btnLogout.setOnClickListener {
             com.google.firebase.auth.FirebaseAuth.getInstance().signOut()
             prefManager.clear()

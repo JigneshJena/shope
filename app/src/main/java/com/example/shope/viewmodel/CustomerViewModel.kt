@@ -8,6 +8,7 @@ import com.example.shope.data.models.Inventory
 import com.example.shope.data.repository.InventoryRepository
 import com.example.shope.data.repository.OrderRepository
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import android.util.Log
 
 class CustomerViewModel : ViewModel() {
@@ -24,30 +25,23 @@ class CustomerViewModel : ViewModel() {
     private val _cartItems = MutableLiveData<List<com.example.shope.data.models.OrderItem>>(emptyList())
     val cartItems: LiveData<List<com.example.shope.data.models.OrderItem>> = _cartItems
 
+    private val _orders = MutableLiveData<List<com.example.shope.data.models.Order>>()
+    val orders: LiveData<List<com.example.shope.data.models.Order>> = _orders
+
+    private val _orderState = MutableLiveData<Result<String>?>(null)
+    val orderState: LiveData<Result<String>?> = _orderState
+
     fun loadProducts() {
         viewModelScope.launch {
             _isLoading.value = true
-            Log.d("CustomerViewModel", "loadProducts: Starting")
-            
-            // 1. Load regular inventory
             val inventoryResult = inventoryRepo.getAllInventoryItems()
             val inventoryList = inventoryResult.getOrDefault(emptyList()).toMutableList()
-            Log.d("CustomerViewModel", "loadProducts: Loaded ${inventoryList.size} regular items")
-            if (inventoryResult.isFailure) {
-                Log.e("CustomerViewModel", "Inventory load failed: ${inventoryResult.exceptionOrNull()?.message}")
-            }
             
-            // 2. Load school uniforms
             val schoolResult = schoolRepo.getAllSchools()
             if (schoolResult.isSuccess) {
                 val schools = schoolResult.getOrDefault(emptyList())
-                Log.d("CustomerViewModel", "loadProducts: Found ${schools.size} schools")
                 for (school in schools) {
-                    val items = school.uniformItems
-                    Log.d("CustomerViewModel", "School ${school.schoolName} has ${items.size} items")
-                    for (item in items) {
-                        Log.d("CustomerViewModel", "Mapping item: ${item.itemName} for ${school.schoolName}")
-                        // Map UniformItem to Inventory for display in the same adapter
+                    for (item in school.uniformItems) {
                         val inventoryItem = Inventory(
                             itemId = if (item.id.isEmpty()) java.util.UUID.randomUUID().toString() else item.id,
                             itemName = "${school.schoolName} - ${item.itemName}",
@@ -56,17 +50,85 @@ class CustomerViewModel : ViewModel() {
                             quantity = item.quantity,
                             itemImage = item.itemImage,
                             status = item.status,
+                            schoolId = school.schoolId,
                             description = "School: ${school.schoolName}\nDetails: ${school.uniformDetails}"
                         )
                         inventoryList.add(inventoryItem)
                     }
                 }
-            } else {
-                Log.e("CustomerViewModel", "Schools load failed: ${schoolResult.exceptionOrNull()?.message}")
             }
-            
-            Log.d("CustomerViewModel", "loadProducts: Total products to display: ${inventoryList.size}")
             _products.value = inventoryList
+            _isLoading.value = false
+        }
+    }
+
+    fun loadMyOrders(customerId: String) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            val result = orderRepo.getOrdersByCustomer(customerId)
+            _orders.value = result.getOrDefault(emptyList())
+            _isLoading.value = false
+        }
+    }
+
+    fun placeOrder(customerId: String, customerName: String, customerPhone: String) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            val items = _cartItems.value ?: emptyList()
+            if (items.isEmpty()) {
+                _isLoading.value = false
+                return@launch
+            }
+
+            val totalAmount = items.sumOf { it.subtotal }
+            val order = com.example.shope.data.models.Order(
+                customerId = customerId,
+                customerName = customerName,
+                customerPhone = customerPhone,
+                orderType = com.example.shope.utils.Constants.ORDER_TYPE_READYMADE,
+                items = items,
+                totalAmount = totalAmount,
+                advancePaid = totalAmount, // Fully paid for customer app
+                balanceAmount = 0.0,
+                status = com.example.shope.utils.Constants.ORDER_STATUS_PENDING,
+                paymentStatus = com.example.shope.utils.Constants.PAYMENT_STATUS_PAID,
+                orderDate = System.currentTimeMillis()
+            )
+
+            val result = orderRepo.createOrder(order)
+            _orderState.value = result
+            if (result.isSuccess) {
+                clearCart()
+            }
+            _isLoading.value = false
+        }
+    }
+
+    fun clearOrderState() {
+        _orderState.value = null
+    }
+
+    fun updateUserProfile(userId: String, name: String, phone: String, address: String, prefManager: com.example.shope.utils.PreferenceManager) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                com.google.firebase.firestore.FirebaseFirestore.getInstance()
+                    .collection(com.example.shope.utils.Constants.COLLECTION_USERS)
+                    .document(userId)
+                    .update(mapOf(
+                        "name" to name,
+                        "phone" to phone,
+                        "address" to address
+                    )).await()
+                
+                prefManager.saveUserName(name)
+                prefManager.saveUserPhone(phone)
+                // Note: PreferenceManager might not have saveUserAddress, but we can add or ignore for now
+                
+                Log.d("CustomerViewModel", "Profile updated successfully")
+            } catch (e: Exception) {
+                Log.e("CustomerViewModel", "Profile update failed", e)
+            }
             _isLoading.value = false
         }
     }
@@ -84,7 +146,9 @@ class CustomerViewModel : ViewModel() {
                 itemName = inventory.itemName,
                 quantity = qty,
                 price = inventory.sellingPrice,
-                subtotal = qty * inventory.sellingPrice
+                subtotal = qty * inventory.sellingPrice,
+                itemImage = inventory.itemImage,
+                schoolId = inventory.schoolId
             ))
         }
         _cartItems.value = currentItems

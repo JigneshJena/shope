@@ -28,10 +28,22 @@ class CartAdapter(
 
         fun bind(item: OrderItem) {
             binding.tvItemName.text = item.itemName
-            val currencyFormatter = NumberFormat.getCurrencyInstance(Locale.forLanguageTag("en-IN"))
+            val currencyFormatter = java.text.NumberFormat.getCurrencyInstance(java.util.Locale.forLanguageTag("en-IN"))
             binding.tvItemPrice.text = currencyFormatter.format(item.price)
             binding.tvItemQuantity.text = "x${item.quantity}"
             binding.tvItemSubtotal.text = currencyFormatter.format(item.subtotal)
+            
+            if (item.itemImage.isNotEmpty()) {
+                try {
+                    val decodedString = android.util.Base64.decode(item.itemImage, android.util.Base64.DEFAULT)
+                    val decodedByte = android.graphics.BitmapFactory.decodeByteArray(decodedString, 0, decodedString.size)
+                    binding.ivItem.setImageBitmap(decodedByte)
+                } catch (e: Exception) {
+                    binding.ivItem.setImageResource(com.example.shope.R.drawable.ic_placeholder)
+                }
+            } else {
+                binding.ivItem.setImageResource(com.example.shope.R.drawable.ic_placeholder)
+            }
             
             binding.btnRemove.setOnClickListener {
                 onRemoveItem(item.itemId)
