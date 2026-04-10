@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.example.shope.databinding.FragmentOwnerHomeBinding
 
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import com.example.shope.viewmodel.OwnerViewModel
 import java.text.NumberFormat
 import java.util.Locale
@@ -16,7 +16,7 @@ class OwnerHomeFragment : Fragment() {
     
     private var _binding: FragmentOwnerHomeBinding? = null
     private val binding get() = _binding!!
-    private val viewModel: OwnerViewModel by viewModels()
+    private val viewModel: OwnerViewModel by activityViewModels()
     
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -31,18 +31,22 @@ class OwnerHomeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         
         setupObservers()
-        viewModel.loadDashboardStats()
+        viewModel.startEmployeesListener()
     }
     
 
     
     private fun setupObservers() {
+        // Observe employees to trigger stats refresh when employee list is available
+        viewModel.employees.observe(viewLifecycleOwner) { _ ->
+            viewModel.loadDashboardStats()
+        }
+
         viewModel.stats.observe(viewLifecycleOwner) { stats ->
             binding.tvTotalEmployees.text = stats.totalEmployees.toString()
             binding.tvActiveEmployees.text = stats.activeEmployees.toString()
             binding.tvTotalSchools.text = stats.totalSchools.toString()
 
-            
             val currencyFormatter = NumberFormat.getCurrencyInstance(Locale.forLanguageTag("en-IN"))
             binding.tvTodaysSales.text = currencyFormatter.format(stats.todaysSales)
         }

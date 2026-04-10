@@ -89,8 +89,12 @@ class EmployeeStockAdapter(
     }
 
     companion object DiffCallback : DiffUtil.ItemCallback<UniformItem>() {
-        override fun areItemsTheSame(oldItem: UniformItem, newItem: UniformItem): Boolean =
-            oldItem.id == newItem.id && oldItem.schoolId == newItem.schoolId
+        override fun areItemsTheSame(oldItem: UniformItem, newItem: UniformItem): Boolean {
+            if (oldItem.id.isNotEmpty() && newItem.id.isNotEmpty() && oldItem.id == newItem.id) {
+                return oldItem.schoolId == newItem.schoolId
+            }
+            return oldItem.itemName == newItem.itemName && oldItem.schoolId == newItem.schoolId
+        }
 
         override fun areContentsTheSame(oldItem: UniformItem, newItem: UniformItem): Boolean =
             oldItem == newItem

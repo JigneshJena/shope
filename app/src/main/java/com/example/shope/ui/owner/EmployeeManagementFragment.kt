@@ -6,7 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.shope.R
 import com.example.shope.data.models.Employee
@@ -23,7 +23,7 @@ class EmployeeManagementFragment : Fragment() {
     
     private var _binding: FragmentEmployeeManagementBinding? = null
     private val binding get() = _binding!!
-    private val viewModel: OwnerViewModel by viewModels()
+    private val viewModel: OwnerViewModel by activityViewModels()
     private lateinit var adapter: EmployeeAdapter
     
     override fun onCreateView(

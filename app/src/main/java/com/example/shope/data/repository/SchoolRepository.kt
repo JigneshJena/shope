@@ -18,10 +18,10 @@ class SchoolRepository {
     suspend fun getAllSchools(ownerUid: String? = null): Result<List<School>> {
         return try {
             val query = if (ownerUid != null) {
-                firestore.collectionGroup(Constants.COLLECTION_SCHOOLS)
+                getSchoolsCollection()
                     .whereEqualTo("addedBy", ownerUid)
             } else {
-                firestore.collectionGroup(Constants.COLLECTION_SCHOOLS)
+                getSchoolsCollection()
             }
             val snapshot = query.get().await()
             Log.d(TAG, "getAllSchools: Found ${snapshot.size()} schools")
@@ -57,45 +57,19 @@ class SchoolRepository {
         return try {
             Log.d(TAG, "getSchoolById: Searching for $schoolId")
             
-            // Try direct fetch first (most efficient and doesn't require index)
-            val directDoc = firestore.collection(Constants.COLLECTION_SCHOOLS).document(schoolId).get().await()
+            // Direct fetch from top-level schools collection
+            val directDoc = getSchoolsCollection().document(schoolId).get().await()
             if (directDoc.exists()) {
                 val school = directDoc.toObject(School::class.java)
                 if (school != null) {
                     if (school.schoolId.isEmpty()) school.schoolId = directDoc.id
+                    Log.d(TAG, "getSchoolById: Found school: ${school.schoolName}")
                     return Result.success(school)
                 }
             }
 
-            // Fallback 1: search by the 'schoolId' field across all collections (requires index)
-            var school: School? = try {
-                val snapshot = firestore.collectionGroup(Constants.COLLECTION_SCHOOLS)
-                    .whereEqualTo("schoolId", schoolId)
-                    .limit(1)
-                    .get()
-                    .await()
-                
-                snapshot.documents.firstOrNull()?.let { doc ->
-                    val s = doc.toObject(School::class.java)
-                    if (s != null && s.schoolId.isEmpty()) s.schoolId = doc.id
-                    s
-                }
-            } catch (e: Exception) {
-                Log.w(TAG, "Filtered search failed - missing index? Using in-memory fallback next.")
-                null
-            }
-            
-            // If not found by field, it might be an older record where schoolId is only the Doc ID
-            if (school == null) {
-                Log.d(TAG, "getSchoolById: Not found by field, searching all...")
-                val allSchoolsResult = getAllSchools()
-                if (allSchoolsResult.isSuccess) {
-                    school = allSchoolsResult.getOrNull()?.find { it.schoolId == schoolId }
-                }
-            }
-            
-            Log.d(TAG, "getSchoolById: Result found: ${school != null}")
-            Result.success(school)
+            Log.d(TAG, "getSchoolById: School not found with id $schoolId")
+            Result.success(null)
         } catch (e: Exception) {
             Log.e(TAG, "Error getting school by id", e)
             Result.failure(e)
@@ -105,31 +79,7 @@ class SchoolRepository {
     suspend fun updateSchool(school: School): Result<Unit> {
         return try {
             Log.d(TAG, "updateSchool: Updating ${school.schoolId}")
-            
-            // Try to find by field first
-            var docRef = try {
-                val snapshot = firestore.collectionGroup(Constants.COLLECTION_SCHOOLS)
-                    .whereEqualTo("schoolId", school.schoolId)
-                    .get()
-                    .await()
-                snapshot.documents.firstOrNull()?.reference
-            } catch (e: Exception) {
-                Log.w(TAG, "updateSchool: Filtered search failed - missing index? Using in-memory fallback next.")
-                null
-            }
-            
-            if (docRef == null) {
-                Log.d(TAG, "updateSchool: Document reference not found by field, searching all...")
-                // Fallback: search all to find the path
-                val query = firestore.collectionGroup(Constants.COLLECTION_SCHOOLS).get().await()
-                docRef = query.documents.find { it.id == school.schoolId }?.reference
-            }
-            
-            if (docRef == null) {
-                Log.d(TAG, "updateSchool: Creating new document in top-level schools")
-                docRef = getSchoolsCollection().document(school.schoolId)
-            }
-            
+            val docRef = getSchoolsCollection().document(school.schoolId)
             Log.d(TAG, "updateSchool: Saving to ${docRef.path}")
             docRef.set(school).await()
             Result.success(Unit)
@@ -142,14 +92,15 @@ class SchoolRepository {
     suspend fun getSchoolCount(ownerUid: String? = null): Int {
         return try {
             val query = if (ownerUid != null) {
-                firestore.collectionGroup(Constants.COLLECTION_SCHOOLS)
+                getSchoolsCollection()
                     .whereEqualTo("addedBy", ownerUid)
             } else {
-                firestore.collectionGroup(Constants.COLLECTION_SCHOOLS)
+                getSchoolsCollection()
             }
             val snapshot = query.get().await()
             snapshot.size()
         } catch (e: Exception) {
+            Log.e(TAG, "Error getting school count", e)
             0
         }
     }
