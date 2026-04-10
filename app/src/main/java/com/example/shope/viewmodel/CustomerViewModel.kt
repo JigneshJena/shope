@@ -163,4 +163,70 @@ class CustomerViewModel : ViewModel() {
     fun clearCart() {
         _cartItems.value = emptyList()
     }
+
+    // ---- Measurements ----
+
+    private val _measurement = MutableLiveData<com.example.shope.data.models.Measurement?>()
+    val measurement: LiveData<com.example.shope.data.models.Measurement?> = _measurement
+
+    /**
+     * Load the customer's measurement from Firestore.
+     * Measurements are stored per customer in the measurements collection.
+     */
+    fun loadMeasurement(customerId: String) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                val snapshot = com.google.firebase.firestore.FirebaseFirestore.getInstance()
+                    .collection(com.example.shope.utils.Constants.COLLECTION_MEASUREMENTS)
+                    .whereEqualTo("customerId", customerId)
+                    .limit(1)
+                    .get()
+                    .await()
+
+                if (!snapshot.isEmpty) {
+                    val doc = snapshot.documents[0]
+                    val m = doc.toObject(com.example.shope.data.models.Measurement::class.java)
+                    _measurement.value = m
+                } else {
+                    _measurement.value = null
+                }
+                Log.d("CustomerViewModel", "Measurement loaded: ${_measurement.value}")
+            } catch (e: Exception) {
+                Log.e("CustomerViewModel", "Failed to load measurement", e)
+                _measurement.value = null
+            }
+            _isLoading.value = false
+        }
+    }
+
+    /**
+     * Save or update the customer's measurement in Firestore
+     */
+    fun saveMeasurement(measurement: com.example.shope.data.models.Measurement) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                val firestore = com.google.firebase.firestore.FirebaseFirestore.getInstance()
+                val collection = firestore.collection(com.example.shope.utils.Constants.COLLECTION_MEASUREMENTS)
+
+                if (measurement.measurementId.isNotEmpty()) {
+                    // Update existing
+                    collection.document(measurement.measurementId)
+                        .set(measurement)
+                        .await()
+                } else {
+                    // Create new - use auto-generated ID
+                    val docRef = collection.document()
+                    measurement.measurementId = docRef.id
+                    docRef.set(measurement).await()
+                }
+                _measurement.value = measurement
+                Log.d("CustomerViewModel", "Measurement saved successfully")
+            } catch (e: Exception) {
+                Log.e("CustomerViewModel", "Failed to save measurement", e)
+            }
+            _isLoading.value = false
+        }
+    }
 }
